@@ -58,3 +58,28 @@ class CalificacionForm(forms.ModelForm):
         if asignatura and len(asignatura.strip()) < 3:
             raise forms.ValidationError('La asignatura debe tener al menos 3 caracteres')
         return asignatura.strip()
+
+    def clean(self):
+        """Validación para evitar duplicados: mismo estudiante + asignatura"""
+        cleaned_data = super().clean()
+        identificacion = cleaned_data.get('identificacion')
+        asignatura = cleaned_data.get('asignatura')
+        
+        if identificacion and asignatura:
+            # Verificar si ya existe (excluyendo la instancia actual en caso de edición)
+            query = Calificacion.objects.filter(
+                identificacion=identificacion.strip(),
+                asignatura=asignatura.strip()
+            )
+            
+            # Si estamos editando, excluir la instancia actual
+            if self.instance and self.instance.pk:
+                query = query.exclude(pk=self.instance.pk)
+            
+            if query.exists():
+                raise forms.ValidationError(
+                    f'Ya existe una calificación para el estudiante con identificación {identificacion} '
+                    f'en la asignatura {asignatura}.'
+                )
+        
+        return cleaned_data

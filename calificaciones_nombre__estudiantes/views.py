@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.db.models import Avg
 from .models import Calificacion
@@ -58,6 +59,11 @@ def crear_calificacion(request):
 # LISTAR
 @login_required
 def listar_calificaciones(request):
+    """Lista calificaciones con búsqueda, filtros y paginación"""
+    from django.core.paginator import Paginator
+    from django.db.models import Q
+    
+    # Obtener todas las calificaciones
     calificaciones = Calificacion.objects.all()
     promedio = Calificacion.objects.aggregate(Avg('promedio'))['promedio__avg']
 

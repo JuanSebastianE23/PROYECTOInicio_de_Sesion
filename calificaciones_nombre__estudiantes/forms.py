@@ -1,4 +1,5 @@
 from django import forms
+from django.core.validators import MinValueValidator, MaxValueValidator
 from .models import Calificacion
 
 class CalificacionForm(forms.ModelForm):
@@ -21,3 +22,64 @@ class CalificacionForm(forms.ModelForm):
             'nota2': 'Segunda Nota',
             'nota3': 'Tercera Nota',
         }
+
+    def clean_nota1(self):
+        nota = self.cleaned_data.get('nota1')
+        if nota is not None and (nota < 0 or nota > 100):
+            raise forms.ValidationError('La nota debe estar entre 0 y 100')
+        return nota
+
+    def clean_nota2(self):
+        nota = self.cleaned_data.get('nota2')
+        if nota is not None and (nota < 0 or nota > 100):
+            raise forms.ValidationError('La nota debe estar entre 0 y 100')
+        return nota
+
+    def clean_nota3(self):
+        nota = self.cleaned_data.get('nota3')
+        if nota is not None and (nota < 0 or nota > 100):
+            raise forms.ValidationError('La nota debe estar entre 0 y 100')
+        return nota
+
+    def clean_nombre_estudiante(self):
+        nombre = self.cleaned_data.get('nombre_estudiante')
+        if nombre and len(nombre.strip()) < 3:
+            raise forms.ValidationError('El nombre debe tener al menos 3 caracteres')
+        return nombre.strip()
+
+    def clean_identificacion(self):
+        identificacion = self.cleaned_data.get('identificacion')
+        if identificacion and len(identificacion.strip()) < 3:
+            raise forms.ValidationError('La identificación debe tener al menos 3 caracteres')
+        return identificacion.strip()
+
+    def clean_asignatura(self):
+        asignatura = self.cleaned_data.get('asignatura')
+        if asignatura and len(asignatura.strip()) < 3:
+            raise forms.ValidationError('La asignatura debe tener al menos 3 caracteres')
+        return asignatura.strip()
+
+    def clean(self):
+        """Validación para evitar duplicados: mismo estudiante + asignatura"""
+        cleaned_data = super().clean()
+        identificacion = cleaned_data.get('identificacion')
+        asignatura = cleaned_data.get('asignatura')
+        
+        if identificacion and asignatura:
+            # Verificar si ya existe (excluyendo la instancia actual en caso de edición)
+            query = Calificacion.objects.filter(
+                identificacion=identificacion.strip(),
+                asignatura=asignatura.strip()
+            )
+            
+            # Si estamos editando, excluir la instancia actual
+            if self.instance and self.instance.pk:
+                query = query.exclude(pk=self.instance.pk)
+            
+            if query.exists():
+                raise forms.ValidationError(
+                    f'Ya existe una calificación para el estudiante con identificación {identificacion} '
+                    f'en la asignatura {asignatura}.'
+                )
+        
+        return cleaned_data

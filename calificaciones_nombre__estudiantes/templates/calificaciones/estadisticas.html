@@ -1,0 +1,238 @@
+{% extends 'calificaciones/base.html' %}
+
+{% block title %}Estadísticas{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'listar_calificaciones' %}"><i class="bi bi-house"></i> Inicio</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Estadísticas</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-graph-up"></i> Estadísticas del Sistema</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tarjetas de resumen -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body text-center">
+                <i class="bi bi-file-earmark-text fs-1"></i>
+                <h2 class="mt-2">{{ total_calificaciones }}</h2>
+                <p class="mb-0">Total Calificaciones</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body text-center">
+                <i class="bi bi-calculator fs-1"></i>
+                <h2 class="mt-2">{{ promedio_general|default:"N/A" }}</h2>
+                <p class="mb-0">Promedio General</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body text-center">
+                <i class="bi bi-check-circle fs-1"></i>
+                <h2 class="mt-2">{{ aprobados }}</h2>
+                <p class="mb-0">Aprobados (≥60)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger">
+            <div class="card-body text-center">
+                <i class="bi bi-x-circle fs-1"></i>
+                <h2 class="mt-2">{{ reprobados }}</h2>
+                <p class="mb-0">Reprobados (<60)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mejores y peores -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h5><i class="bi bi-trophy"></i> Mejor Estudiante</h5>
+            </div>
+            <div class="card-body">
+                {% if mejor_estudiante %}
+                <h4>{{ mejor_estudiante.nombre_estudiante }}</h4>
+                <p class="mb-1"><strong>Asignatura:</strong> {{ mejor_estudiante.asignatura }}</p>
+                <p class="mb-1"><strong>Identificación:</strong> {{ mejor_estudiante.identificacion }}</p>
+                <p class="mb-0"><strong>Promedio:</strong> <span class="badge bg-success fs-6">{{ mejor_estudiante.promedio }}</span></p>
+                {% else %}
+                <p class="text-muted">No hay datos disponibles</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-warning">
+            <div class="card-header bg-warning">
+                <h5><i class="bi bi-exclamation-triangle"></i> Estudiante con Menor Promedio</h5>
+            </div>
+            <div class="card-body">
+                {% if peor_estudiante %}
+                <h4>{{ peor_estudiante.nombre_estudiante }}</h4>
+                <p class="mb-1"><strong>Asignatura:</strong> {{ peor_estudiante.asignatura }}</p>
+                <p class="mb-1"><strong>Identificación:</strong> {{ peor_estudiante.identificacion }}</p>
+                <p class="mb-0"><strong>Promedio:</strong> <span class="badge bg-warning fs-6">{{ peor_estudiante.promedio }}</span></p>
+                {% else %}
+                <p class="text-muted">No hay datos disponibles</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rangos de promedio -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-bar-chart"></i> Rangos de Promedio</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><strong>Promedio Más Alto:</strong></span>
+                        <span class="badge bg-success">{{ promedio_mas_alto|default:"N/A" }}</span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-success" style="width: {{ promedio_mas_alto }}%">{{ promedio_mas_alto }}%</div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><strong>Promedio General:</strong></span>
+                        <span class="badge bg-primary">{{ promedio_general|default:"N/A" }}</span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-primary" style="width: {{ promedio_general }}%">{{ promedio_general }}%</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><strong>Promedio Más Bajo:</strong></span>
+                        <span class="badge bg-danger">{{ promedio_mas_bajo|default:"N/A" }}</span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-danger" style="width: {{ promedio_mas_bajo }}%">{{ promedio_mas_bajo }}%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-pie-chart"></i> Distribución Aprobados/Reprobados</h5>
+            </div>
+            <div class="card-body">
+                {% if total_calificaciones > 0 %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><strong>Aprobados:</strong> {{ aprobados }}</span>
+                        <span>{{ aprobados|floatformat:0 }} / {{ total_calificaciones }} ({% widthratio aprobados total_calificaciones 100 %}%)</span>
+                    </div>
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-success" style="width: {% widthratio aprobados total_calificaciones 100 %}%">
+                            {% widthratio aprobados total_calificaciones 100 %}%
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span><strong>Reprobados:</strong> {{ reprobados }}</span>
+                        <span>{{ reprobados|floatformat:0 }} / {{ total_calificaciones }} ({% widthratio reprobados total_calificaciones 100 %}%)</span>
+                    </div>
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-danger" style="width: {% widthratio reprobados total_calificaciones 100 %}%">
+                            {% widthratio reprobados total_calificaciones 100 %}%
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">No hay datos para mostrar</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Promedio por asignatura -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-book"></i> Promedio por Asignatura</h5>
+            </div>
+            <div class="card-body">
+                {% if promedios_por_asignatura %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Asignatura</th>
+                                <th>Total Estudiantes</th>
+                                <th>Promedio</th>
+                                <th>Visualización</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in promedios_por_asignatura %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td><strong>{{ item.asignatura }}</strong></td>
+                                <td>{{ item.total }}</td>
+                                <td>
+                                    {% if item.promedio >= 60 %}
+                                    <span class="badge bg-success">{{ item.promedio }}</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">{{ item.promedio }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px; width: 200px;">
+                                        {% if item.promedio >= 60 %}
+                                        <div class="progress-bar bg-success" style="width: {{ item.promedio }}%">{{ item.promedio }}%</div>
+                                        {% else %}
+                                        <div class="progress-bar bg-danger" style="width: {{ item.promedio }}%">{{ item.promedio }}%</div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">No hay asignaturas registradas</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-4">
+    <a href="{% url 'listar_calificaciones' %}" class="btn btn-primary">
+        <i class="bi bi-arrow-left"></i> Volver a la Lista
+    </a>
+</div>
+{% endblock %}

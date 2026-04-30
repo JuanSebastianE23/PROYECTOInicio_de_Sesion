@@ -11,4 +11,5 @@ urlpatterns = [
     path('promedio-general/', views.promedio_general, name='promedio_general'),
     path('estadisticas/', views.estadisticas, name='estadisticas'),
     path('exportar-csv/', views.exportar_csv, name='exportar_csv'),
+    path('importar-csv/', views.importar_csv, name='importar_csv'),
 ]

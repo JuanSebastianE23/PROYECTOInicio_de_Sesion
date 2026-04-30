@@ -207,3 +207,74 @@ def exportar_csv(request):
         ])
     
     return response
+
+
+# Vista para importar calificaciones desde CSV
+@login_required
+def importar_csv(request):
+    """Importa calificaciones desde un archivo CSV"""
+    if request.method == 'POST' and request.FILES.get('archivo_csv'):
+        import csv
+        import io
+        
+        archivo = request.FILES['archivo_csv']
+        
+        # Validar extensión
+        if not archivo.name.endswith('.csv'):
+            messages.error(request, 'El archivo debe ser CSV')
+            return redirect('listar_calificaciones')
+        
+        try:
+            # Leer archivo
+            decoded_file = archivo.read().decode('utf-8-sig')
+            io_string = io.StringIO(decoded_file)
+            reader = csv.DictReader(io_string)
+            
+            importados = 0
+            errores = []
+            
+            for row_num, row in enumerate(reader, start=2):
+                try:
+                    # Validar que existan las columnas necesarias
+                    nombre = row.get('Nombre Estudiante', '').strip()
+                    identificacion = row.get('Identificación', '').strip()
+                    asignatura = row.get('Asignatura', '').strip()
+                    nota1 = row.get('Nota 1', '').strip()
+                    nota2 = row.get('Nota 2', '').strip()
+                    nota3 = row.get('Nota 3', '').strip()
+                    
+                    if not all([nombre, identificacion, asignatura, nota1, nota2, nota3]):
+                        errores.append(f'Fila {row_num}: Datos incompletos')
+                        continue
+                    
+                    # Verificar duplicados
+                    if Calificacion.objects.filter(identificacion=identificacion, asignatura=asignatura).exists():
+                        errores.append(f'Fila {row_num}: Ya existe {identificacion} en {asignatura}')
+                        continue
+                    
+                    # Crear calificación
+                    Calificacion.objects.create(
+                        nombre_estudiante=nombre,
+                        identificacion=identificacion,
+                        asignatura=asignatura,
+                        nota1=Decimal(nota1),
+                        nota2=Decimal(nota2),
+                        nota3=Decimal(nota3)
+                    )
+                    importados += 1
+                    
+                except Exception as e:
+                    errores.append(f'Fila {row_num}: {str(e)}')
+            
+            # Mensajes de resultado
+            if importados > 0:
+                messages.success(request, f'Se importaron {importados} calificaciones exitosamente')
+            if errores:
+                messages.warning(request, f'Errores encontrados: {len(errores)}. ' + '; '.join(errores[:5]))
+            
+        except Exception as e:
+            messages.error(request, f'Error al procesar el archivo: {str(e)}')
+        
+        return redirect('listar_calificaciones')
+    
+    return render(request, 'calificaciones/importar_csv.html')

@@ -13,178 +13,43 @@
 
 {% block content %}
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h3><i class="bi bi-list-ul"></i> Lista de Calificaciones</h3>
-        <div>
-            <a href="{% url 'importar_csv' %}" class="btn btn-info me-2">
-                <i class="bi bi-upload"></i> Importar CSV
-            </a>
-            <a href="{% url 'exportar_csv' %}" class="btn btn-success me-2">
-                <i class="bi bi-download"></i> Exportar CSV
-            </a>
-            <a href="{% url 'crear_calificacion' %}" class="btn btn-light">
-                <i class="bi bi-plus-circle"></i> Nueva Calificación
-            </a>
-        </div>
+    <div class="card-header">
+        Lista de Calificaciones
     </div>
+
     <div class="card-body">
-        <!-- Barra de búsqueda y filtros -->
-        <form method="get" class="mb-4">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="text" name="buscar" class="form-control" placeholder="Buscar por nombre o identificación" value="{{ buscar }}">
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <select name="asignatura" class="form-select">
-                        <option value="">Todas las asignaturas</option>
-                        {% for asig in asignaturas %}
-                        <option value="{{ asig }}" {% if asignatura_filtro == asig %}selected{% endif %}>{{ asig }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select name="orden" class="form-select">
-                        <option value="-promedio" {% if orden == '-promedio' %}selected{% endif %}>Mayor promedio</option>
-                        <option value="promedio" {% if orden == 'promedio' %}selected{% endif %}>Menor promedio</option>
-                        <option value="nombre_estudiante" {% if orden == 'nombre_estudiante' %}selected{% endif %}>Nombre A-Z</option>
-                        <option value="-nombre_estudiante" {% if orden == '-nombre_estudiante' %}selected{% endif %}>Nombre Z-A</option>
-                        <option value="asignatura" {% if orden == 'asignatura' %}selected{% endif %}>Asignatura A-Z</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-funnel"></i> Filtrar
-                    </button>
-                </div>
-            </div>
-        </form>
+        <p class="descripcion">Aquí puedes gestionar las calificaciones registradas.</p>
 
-        {% if buscar or asignatura_filtro %}
-        <div class="alert alert-info alert-dismissible fade show">
-            <i class="bi bi-info-circle"></i> 
-            Mostrando resultados filtrados
-            {% if buscar %}<strong>"{{ buscar }}"</strong>{% endif %}
-            {% if asignatura_filtro %}<strong>{{ asignatura_filtro }}</strong>{% endif %}
-            <a href="{% url 'listar_calificaciones' %}" class="alert-link ms-2">Limpiar filtros</a>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endif %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Estudiante</th>
+                    <th>Nota</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in calificaciones %}
+                <tr>
+                    <td>{{ c.nombre }}</td>
+                    <td>{{ c.nota }}</td>
+                    <td>
+                        <a href="{% url 'editar_calificacion' c.id %}" class="btn btn-warning btn-sm">
+                            <i class="bi bi-pencil"></i>
+                        </a>
 
-        {% if calificaciones %}
-        <div class="table-responsive">
-            <table class="table table-hover table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Estudiante</th>
-                        <th>Identificación</th>
-                        <th>Asignatura</th>
-                        <th>Nota 1</th>
-                        <th>Nota 2</th>
-                        <th>Nota 3</th>
-                        <th>Promedio</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for calificacion in calificaciones %}
-                    <tr>
-                        <td>{{ forloop.counter|add:page_obj.start_index|add:"-1" }}</td>
-                        <td>{{ calificacion.nombre_estudiante }}</td>
-                        <td>{{ calificacion.identificacion }}</td>
-                        <td>{{ calificacion.asignatura }}</td>
-                        <td>{{ calificacion.nota1 }}</td>
-                        <td>{{ calificacion.nota2 }}</td>
-                        <td>{{ calificacion.nota3 }}</td>
-                        <td>
-                            {% if calificacion.promedio >= 60 %}
-                            <span class="badge bg-success">{{ calificacion.promedio }}</span>
-                            {% else %}
-                            <span class="badge bg-danger">{{ calificacion.promedio }}</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <a href="{% url 'editar_calificacion' calificacion.pk %}" class="btn btn-sm btn-warning" title="Editar">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            <a href="{% url 'eliminar_calificacion' calificacion.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-                <tfoot>
-                    <tr class="table-info">
-                        <td colspan="7" class="text-end"><strong>Promedio General:</strong></td>
-                        <td colspan="2">
-                            <strong class="text-primary fs-5">
-                                {% if promedio_general is not None %}
-                                    {{ promedio_general }}
-                                {% else %}
-                                    N/A
-                                {% endif %}
-                            </strong>
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-
-        <!-- Paginación -->
-        {% if page_obj.has_other_pages %}
-        <nav aria-label="Navegación de páginas">
-            <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page=1{% if buscar %}&buscar={{ buscar }}{% endif %}{% if asignatura_filtro %}&asignatura={{ asignatura_filtro }}{% endif %}{% if orden %}&orden={{ orden }}{% endif %}">
-                        <i class="bi bi-chevron-double-left"></i>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if buscar %}&buscar={{ buscar }}{% endif %}{% if asignatura_filtro %}&asignatura={{ asignatura_filtro }}{% endif %}{% if orden %}&orden={{ orden }}{% endif %}">
-                        <i class="bi bi-chevron-left"></i>
-                    </a>
-                </li>
-                {% endif %}
-
-                <li class="page-item active">
-                    <span class="page-link">
-                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-                    </span>
-                </li>
-
-                {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if buscar %}&buscar={{ buscar }}{% endif %}{% if asignatura_filtro %}&asignatura={{ asignatura_filtro }}{% endif %}{% if orden %}&orden={{ orden }}{% endif %}">
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if buscar %}&buscar={{ buscar }}{% endif %}{% if asignatura_filtro %}&asignatura={{ asignatura_filtro }}{% endif %}{% if orden %}&orden={{ orden }}{% endif %}">
-                        <i class="bi bi-chevron-double-right"></i>
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
-        {% endif %}
-
-        {% else %}
-        <div class="alert alert-warning text-center">
-            <i class="bi bi-exclamation-triangle"></i> 
-            {% if buscar or asignatura_filtro %}
-                No se encontraron resultados con los filtros aplicados.
-                <a href="{% url 'listar_calificaciones' %}" class="alert-link">Ver todas las calificaciones</a>
-            {% else %}
-                No hay calificaciones registradas.
-                <a href="{% url 'crear_calificacion' %}" class="alert-link">Registrar la primera calificación</a>
-            {% endif %}
-        </div>
-        {% endif %}
+                        <a href="{% url 'eliminar_calificacion' c.id %}" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">No hay registros disponibles.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}

@@ -177,3 +177,33 @@ def estadisticas(request):
         'reprobados': reprobados,
     }
     return render(request, 'calificaciones/estadisticas.html', context)
+
+
+# Vista para exportar calificaciones a CSV
+@login_required
+def exportar_csv(request):
+    """Exporta todas las calificaciones a un archivo CSV"""
+    import csv
+    from django.http import HttpResponse
+    from datetime import datetime
+    
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="calificaciones_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+    response.write('\ufeff')  # BOM para Excel
+    
+    writer = csv.writer(response)
+    writer.writerow(['Nombre Estudiante', 'Identificación', 'Asignatura', 'Nota 1', 'Nota 2', 'Nota 3', 'Promedio'])
+    
+    calificaciones = Calificacion.objects.all().order_by('-promedio')
+    for cal in calificaciones:
+        writer.writerow([
+            cal.nombre_estudiante,
+            cal.identificacion,
+            cal.asignatura,
+            cal.nota1,
+            cal.nota2,
+            cal.nota3,
+            cal.promedio
+        ])
+    
+    return response

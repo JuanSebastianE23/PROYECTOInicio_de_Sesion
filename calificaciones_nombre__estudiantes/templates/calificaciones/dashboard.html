@@ -3,25 +3,40 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <h2><i class="bi bi-speedometer2"></i> Dashboard - Sistema de Calificaciones</h2>
-        <p class="text-muted">Bienvenido, {{ user.username }}. Aquí tienes un resumen del sistema.</p>
+<div class="row mb-3">
+    <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h3 class="mb-1"><i class="bi bi-speedometer2"></i> Dashboard</h3>
+            <p class="descripcion mb-0">Bienvenido, {{ user.username }}. Resumen rápido del sistema.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'crear_calificacion' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Nueva calificación
+            </a>
+            <a href="{% url 'listar_calificaciones' %}" class="btn btn-outline-light border">
+                <i class="bi bi-list-ul"></i> Ver lista
+            </a>
+        </div>
     </div>
 </div>
 
-<!-- Tarjetas de resumen -->
-<div class="row mb-4">
+{% if total_calificaciones == 0 %}
+<div class="alert alert-warning shadow-sm">
+    No hay calificaciones registradas. Crea la primera para ver estadísticas y promedios.
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
     <div class="col-md-3">
         <div class="card text-white bg-primary h-100">
             <div class="card-body text-center">
                 <i class="bi bi-file-earmark-text fs-1"></i>
-                <h2 class="mt-2">{{ total_calificaciones }}</h2>
-                <p class="mb-0">Total Calificaciones</p>
+                <div class="fs-2 fw-bold mt-2">{{ total_calificaciones }}</div>
+                <div>Total calificaciones</div>
             </div>
-            <div class="card-footer bg-transparent border-0">
+            <div class="card-footer bg-transparent border-0 text-center">
                 <a href="{% url 'listar_calificaciones' %}" class="text-white text-decoration-none">
-                    Ver todas <i class="bi bi-arrow-right"></i>
+                    Ir a la lista <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>
@@ -30,12 +45,12 @@
         <div class="card text-white bg-success h-100">
             <div class="card-body text-center">
                 <i class="bi bi-calculator fs-1"></i>
-                <h2 class="mt-2">{{ promedio_general|default:"N/A" }}</h2>
-                <p class="mb-0">Promedio General</p>
+                <div class="fs-2 fw-bold mt-2">{{ promedio_general|default:"N/A"|floatformat:2 }}</div>
+                <div>Promedio general</div>
             </div>
-            <div class="card-footer bg-transparent border-0">
+            <div class="card-footer bg-transparent border-0 text-center">
                 <a href="{% url 'promedio_general' %}" class="text-white text-decoration-none">
-                    Ver detalles <i class="bi bi-arrow-right"></i>
+                    Ver detalle <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         </div>
@@ -44,10 +59,10 @@
         <div class="card text-white bg-info h-100">
             <div class="card-body text-center">
                 <i class="bi bi-check-circle fs-1"></i>
-                <h2 class="mt-2">{{ aprobados }}</h2>
-                <p class="mb-0">Aprobados</p>
+                <div class="fs-2 fw-bold mt-2">{{ aprobados }}</div>
+                <div>Aprobados</div>
             </div>
-            <div class="card-footer bg-transparent border-0">
+            <div class="card-footer bg-transparent border-0 text-center">
                 <a href="{% url 'estadisticas' %}" class="text-white text-decoration-none">
                     Ver estadísticas <i class="bi bi-arrow-right"></i>
                 </a>
@@ -58,10 +73,10 @@
         <div class="card text-white bg-danger h-100">
             <div class="card-body text-center">
                 <i class="bi bi-x-circle fs-1"></i>
-                <h2 class="mt-2">{{ reprobados }}</h2>
-                <p class="mb-0">Reprobados</p>
+                <div class="fs-2 fw-bold mt-2">{{ reprobados }}</div>
+                <div>Reprobados</div>
             </div>
-            <div class="card-footer bg-transparent border-0">
+            <div class="card-footer bg-transparent border-0 text-center">
                 <a href="{% url 'estadisticas' %}" class="text-white text-decoration-none">
                     Ver estadísticas <i class="bi bi-arrow-right"></i>
                 </a>
@@ -70,47 +85,41 @@
     </div>
 </div>
 
-<!-- Acciones rápidas -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5><i class="bi bi-lightning"></i> Acciones Rápidas</h5>
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="bi bi-lightning"></i> Acciones rápidas
+    </div>
+    <div class="card-body">
+        <div class="row g-2">
+            <div class="col-md-3">
+                <a href="{% url 'crear_calificacion' %}" class="btn btn-primary w-100">
+                    <i class="bi bi-plus-circle"></i> Nueva
+                </a>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-2">
-                        <a href="{% url 'crear_calificacion' %}" class="btn btn-primary w-100">
-                            <i class="bi bi-plus-circle"></i> Nueva Calificación
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{% url 'importar_csv' %}" class="btn btn-info w-100">
-                            <i class="bi bi-upload"></i> Importar CSV
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{% url 'exportar_csv' %}" class="btn btn-success w-100">
-                            <i class="bi bi-download"></i> Exportar CSV
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{% url 'estadisticas' %}" class="btn btn-warning w-100">
-                            <i class="bi bi-graph-up"></i> Ver Estadísticas
-                        </a>
-                    </div>
-                </div>
+            <div class="col-md-3">
+                <a href="{% url 'importar_csv' %}" class="btn btn-info w-100 text-white">
+                    <i class="bi bi-upload"></i> Importar CSV
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{% url 'exportar_csv' %}" class="btn btn-success w-100">
+                    <i class="bi bi-download"></i> Exportar CSV
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{% url 'estadisticas' %}" class="btn btn-warning w-100">
+                    <i class="bi bi-graph-up"></i> Estadísticas
+                </a>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <!-- Top 5 Mejores Estudiantes -->
-    <div class="col-md-6 mb-4">
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
         <div class="card h-100">
             <div class="card-header bg-success text-white">
-                <h5><i class="bi bi-trophy"></i> Top 5 Mejores Estudiantes</h5>
+                <i class="bi bi-trophy"></i> Top 5 mejores estudiantes
             </div>
             <div class="card-body">
                 {% if mejores_estudiantes %}
@@ -118,26 +127,23 @@
                     {% for cal in mejores_estudiantes %}
                     <div class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
-                            <strong>{{ forloop.counter }}. {{ cal.nombre_estudiante }}</strong>
-                            <br>
-                            <small class="text-muted">{{ cal.asignatura }}</small>
+                            <div class="fw-bold">{{ forloop.counter }}. {{ cal.nombre_estudiante }}</div>
+                            <div class="descripcion">{{ cal.asignatura }}</div>
                         </div>
-                        <span class="badge bg-success rounded-pill fs-6">{{ cal.promedio }}</span>
+                        <span class="badge bg-success rounded-pill fs-6">{{ cal.promedio|floatformat:2 }}</span>
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="text-muted text-center">No hay datos disponibles</p>
+                <p class="descripcion text-center mb-0">No hay datos disponibles</p>
                 {% endif %}
             </div>
         </div>
     </div>
-
-    <!-- Últimas Calificaciones -->
-    <div class="col-md-6 mb-4">
+    <div class="col-md-6">
         <div class="card h-100">
             <div class="card-header bg-primary text-white">
-                <h5><i class="bi bi-clock-history"></i> Últimas Calificaciones Registradas</h5>
+                <i class="bi bi-clock-history"></i> Últimas calificaciones
             </div>
             <div class="card-body">
                 {% if ultimas_calificaciones %}
@@ -145,84 +151,79 @@
                     {% for cal in ultimas_calificaciones %}
                     <div class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
-                            <strong>{{ cal.nombre_estudiante }}</strong>
-                            <br>
-                            <small class="text-muted">{{ cal.asignatura }}</small>
+                            <div class="fw-bold">{{ cal.nombre_estudiante }}</div>
+                            <div class="descripcion">{{ cal.asignatura }}</div>
                         </div>
                         <div class="text-end">
                             {% if cal.promedio >= 60 %}
-                            <span class="badge bg-success">{{ cal.promedio }}</span>
+                            <span class="badge bg-success">{{ cal.promedio|floatformat:2 }}</span>
                             {% else %}
-                            <span class="badge bg-danger">{{ cal.promedio }}</span>
+                            <span class="badge bg-danger">{{ cal.promedio|floatformat:2 }}</span>
                             {% endif %}
-                            <br>
-                            <a href="{% url 'editar_calificacion' cal.pk %}" class="btn btn-sm btn-outline-primary mt-1">
-                                <i class="bi bi-pencil"></i>
-                            </a>
+                            <div class="mt-1">
+                                <a href="{% url 'editar_calificacion' cal.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="text-muted text-center">No hay calificaciones registradas</p>
+                <p class="descripcion text-center mb-0">No hay calificaciones registradas</p>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
 
-<!-- Promedio por Asignatura -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header bg-warning">
-                <h5><i class="bi bi-book"></i> Top 5 Asignaturas por Promedio</h5>
-            </div>
-            <div class="card-body">
-                {% if promedios_asignatura %}
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Asignatura</th>
-                                <th>Total Estudiantes</th>
-                                <th>Promedio</th>
-                                <th>Visualización</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in promedios_asignatura %}
-                            <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td><strong>{{ item.asignatura }}</strong></td>
-                                <td>{{ item.total }}</td>
-                                <td>
-                                    {% if item.promedio >= 60 %}
-                                    <span class="badge bg-success">{{ item.promedio }}</span>
-                                    {% else %}
-                                    <span class="badge bg-danger">{{ item.promedio }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="progress" style="height: 20px; width: 150px;">
-                                        {% if item.promedio >= 60 %}
-                                        <div class="progress-bar bg-success" style="width: {{ item.promedio }}%">{{ item.promedio }}%</div>
-                                        {% else %}
-                                        <div class="progress-bar bg-danger" style="width: {{ item.promedio }}%">{{ item.promedio }}%</div>
-                                        {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <p class="text-muted text-center">No hay datos disponibles</p>
-                {% endif %}
-            </div>
+<div class="card">
+    <div class="card-header bg-warning">
+        <i class="bi bi-book"></i> Top 5 asignaturas por promedio
+    </div>
+    <div class="card-body">
+        {% if promedios_asignatura %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Asignatura</th>
+                        <th>Total</th>
+                        <th>Promedio</th>
+                        <th style="width: 220px;">Visual</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in promedios_asignatura %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td class="fw-bold">{{ item.asignatura }}</td>
+                        <td>{{ item.total }}</td>
+                        <td>
+                            {% if item.promedio >= 60 %}
+                            <span class="badge bg-success">{{ item.promedio|floatformat:2 }}</span>
+                            {% else %}
+                            <span class="badge bg-danger">{{ item.promedio|floatformat:2 }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="progress" style="height: 18px;">
+                                {% if item.promedio >= 60 %}
+                                <div class="progress-bar bg-success" style="width: {{ item.promedio }}%"></div>
+                                {% else %}
+                                <div class="progress-bar bg-danger" style="width: {{ item.promedio }}%"></div>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+        {% else %}
+        <p class="descripcion text-center mb-0">No hay datos disponibles</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

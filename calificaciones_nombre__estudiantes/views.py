@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.db.models import Avg
+from django.utils.http import url_has_allowed_host_and_scheme
 from .models import Calificacion
 from .forms import CalificacionForm
 
@@ -17,7 +19,7 @@ def inicio(request):
 # LOGIN
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('listar_calificaciones')
+        return redirect('dashboard')
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -27,7 +29,10 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect('listar_calificaciones')
+            next_url = request.GET.get('next')
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+                return redirect(next_url)
+            return redirect('dashboard')
         else:
             messages.error(request, 'Usuario o contraseña incorrectos')
 
@@ -35,7 +40,7 @@ def login_view(request):
 
 def signup_view(request):
     if request.user.is_authenticated:
-        return redirect('listar_calificaciones')
+        return redirect('dashboard')
 
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -43,7 +48,7 @@ def signup_view(request):
             user = form.save()
             login(request, user)
             messages.success(request, 'Usuario creado exitosamente')
-            return redirect('listar_calificaciones')
+            return redirect('dashboard')
     else:
         form = UserCreationForm()
 

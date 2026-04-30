@@ -15,7 +15,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, f'Bienvenido {username}!')
-            return redirect('listar_calificaciones')
+            return redirect('dashboard')
         else:
             messages.error(request, 'Usuario o contraseña incorrectos')
     return render(request, 'calificaciones/login.html')
@@ -278,3 +278,46 @@ def importar_csv(request):
         return redirect('listar_calificaciones')
     
     return render(request, 'calificaciones/importar_csv.html')
+
+
+# Vista de Dashboard
+@login_required
+def dashboard(request):
+    """Dashboard principal con resumen del sistema"""
+    from django.db.models import Avg, Count
+    
+    # Estadísticas generales
+    total_calificaciones = Calificacion.objects.count()
+    promedio_general = Calificacion.objects.aggregate(Avg('promedio'))['promedio__avg']
+    aprobados = Calificacion.objects.filter(promedio__gte=60).count()
+    reprobados = Calificacion.objects.filter(promedio__lt=60).count()
+    
+    # Últimas calificaciones registradas
+    ultimas_calificaciones = Calificacion.objects.all().order_by('-id')[:5]
+    
+    # Top 5 mejores estudiantes
+    mejores_estudiantes = Calificacion.objects.all().order_by('-promedio')[:5]
+    
+    # Promedio por asignatura (top 5)
+    promedios_asignatura = Calificacion.objects.values('asignatura').annotate(
+        promedio=Avg('promedio'),
+        total=Count('id')
+    ).order_by('-promedio')[:5]
+    
+    # Redondear
+    if promedio_general:
+        promedio_general = round(promedio_general, 2)
+    
+    for item in promedios_asignatura:
+        item['promedio'] = round(item['promedio'], 2)
+    
+    context = {
+        'total_calificaciones': total_calificaciones,
+        'promedio_general': promedio_general,
+        'aprobados': aprobados,
+        'reprobados': reprobados,
+        'ultimas_calificaciones': ultimas_calificaciones,
+        'mejores_estudiantes': mejores_estudiantes,
+        'promedios_asignatura': promedios_asignatura,
+    }
+    return render(request, 'calificaciones/dashboard.html', context)

@@ -44,7 +44,7 @@ def crear_calificacion(request):
 def listar_calificaciones(request):
     calificaciones = Calificacion.objects.all()
     promedio_general = Calificacion.objects.all().aggregate(Avg('promedio'))['promedio__avg']
-    if promedio_general:
+    if promedio_general is not None:
         promedio_general = round(promedio_general, 2)
     context = {
         'calificaciones': calificaciones,
@@ -80,7 +80,7 @@ def eliminar_calificacion(request, pk):
 @login_required
 def promedio_general(request):
     promedio = Calificacion.objects.all().aggregate(Avg('promedio'))['promedio__avg']
-    if promedio:
+    if promedio is not None:
         promedio = round(promedio, 2)
     calificaciones = Calificacion.objects.all()
     context = {

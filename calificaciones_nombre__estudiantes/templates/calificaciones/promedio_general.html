@@ -10,7 +10,7 @@
                 <h3><i class="bi bi-calculator"></i> Promedio General de Calificaciones</h3>
             </div>
             <div class="card-body text-center">
-                {% if promedio_general %}
+                {% if promedio_general is not None %}
                 <div class="mb-4">
                     <h5 class="text-muted">Total de Estudiantes Registrados</h5>
                     <h1 class="display-4 text-primary">{{ total_estudiantes }}</h1>

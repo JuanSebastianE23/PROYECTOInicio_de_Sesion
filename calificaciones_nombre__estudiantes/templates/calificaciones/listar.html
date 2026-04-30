@@ -56,7 +56,7 @@
                         <td colspan="7" class="text-end"><strong>Promedio General:</strong></td>
                         <td colspan="2">
                             <strong class="text-primary fs-5">
-                                {% if promedio_general %}
+                                {% if promedio_general is not None %}
                                     {{ promedio_general }}
                                 {% else %}
                                     N/A

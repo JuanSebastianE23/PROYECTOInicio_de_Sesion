@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.db.models import Avg
 from .models import Calificacion
@@ -19,6 +20,19 @@ def login_view(request):
         else:
             messages.error(request, 'Usuario o contraseña incorrectos')
     return render(request, 'calificaciones/login.html')
+
+def signup_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Usuario creado exitosamente')
+            return redirect('listar_calificaciones')
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'calificaciones/signup.html', {'form': form})
 
 # Vista de cierre de sesión
 def logout_view(request):

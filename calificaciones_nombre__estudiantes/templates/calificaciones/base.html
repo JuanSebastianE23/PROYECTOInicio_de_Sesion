@@ -51,6 +51,11 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'listar_calificaciones' %}">
                             <i class="bi bi-list-ul"></i> Listar
                         </a>
@@ -58,6 +63,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'crear_calificacion' %}">
                             <i class="bi bi-plus-circle"></i> Nueva Calificación
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'estadisticas' %}">
+                            <i class="bi bi-graph-up"></i> Estadísticas
                         </a>
                     </li>
                     <li class="nav-item">
@@ -83,6 +93,10 @@
 
     <div class="content-wrapper">
         <div class="container">
+            <!-- Breadcrumbs -->
+            {% block breadcrumbs %}
+            {% endblock %}
+
             {% if messages %}
                 {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">

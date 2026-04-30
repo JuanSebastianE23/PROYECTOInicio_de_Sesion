@@ -42,13 +42,51 @@ def crear_calificacion(request):
 # Vista para listar todas las calificaciones
 @login_required
 def listar_calificaciones(request):
+    """Lista calificaciones con búsqueda, filtros y paginación"""
+    from django.core.paginator import Paginator
+    from django.db.models import Q
+    
+    # Obtener todas las calificaciones
     calificaciones = Calificacion.objects.all()
+    
+    # Búsqueda por nombre o identificación
+    buscar = request.GET.get('buscar', '')
+    if buscar:
+        calificaciones = calificaciones.filter(
+            Q(nombre_estudiante__icontains=buscar) |
+            Q(identificacion__icontains=buscar)
+        )
+    
+    # Filtro por asignatura
+    asignatura_filtro = request.GET.get('asignatura', '')
+    if asignatura_filtro:
+        calificaciones = calificaciones.filter(asignatura__icontains=asignatura_filtro)
+    
+    # Ordenamiento
+    orden = request.GET.get('orden', '-promedio')
+    calificaciones = calificaciones.order_by(orden)
+    
+    # Paginación (10 por página)
+    paginator = Paginator(calificaciones, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    # Promedio general (de todos, no solo de la página)
     promedio_general = Calificacion.objects.all().aggregate(Avg('promedio'))['promedio__avg']
     if promedio_general is not None:
         promedio_general = round(promedio_general, 2)
+    
+    # Obtener lista de asignaturas únicas para el filtro
+    asignaturas = Calificacion.objects.values_list('asignatura', flat=True).distinct().order_by('asignatura')
+    
     context = {
-        'calificaciones': calificaciones,
-        'promedio_general': promedio_general
+        'page_obj': page_obj,
+        'calificaciones': page_obj,  # Para compatibilidad con template
+        'promedio_general': promedio_general,
+        'buscar': buscar,
+        'asignatura_filtro': asignatura_filtro,
+        'orden': orden,
+        'asignaturas': asignaturas,
     }
     return render(request, 'calificaciones/listar.html', context)
 

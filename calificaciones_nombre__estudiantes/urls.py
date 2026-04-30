@@ -9,4 +9,5 @@ urlpatterns = [
     path('calificaciones/editar/<int:pk>/', views.editar_calificacion, name='editar_calificacion'),
     path('calificaciones/eliminar/<int:pk>/', views.eliminar_calificacion, name='eliminar_calificacion'),
     path('promedio-general/', views.promedio_general, name='promedio_general'),
+    path('estadisticas/', views.estadisticas, name='estadisticas'),
 ]

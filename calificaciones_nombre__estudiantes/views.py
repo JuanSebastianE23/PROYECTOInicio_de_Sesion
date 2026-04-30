@@ -126,3 +126,54 @@ def promedio_general(request):
         'total_estudiantes': calificaciones.count()
     }
     return render(request, 'calificaciones/promedio_general.html', context)
+
+
+# Vista de estadísticas avanzadas
+@login_required
+def estadisticas(request):
+    """Muestra estadísticas detalladas del sistema"""
+    from django.db.models import Avg, Max, Min, Count
+    
+    # Estadísticas generales
+    total_calificaciones = Calificacion.objects.count()
+    promedio_general = Calificacion.objects.aggregate(Avg('promedio'))['promedio__avg']
+    promedio_mas_alto = Calificacion.objects.aggregate(Max('promedio'))['promedio__max']
+    promedio_mas_bajo = Calificacion.objects.aggregate(Min('promedio'))['promedio__min']
+    
+    # Mejor y peor estudiante
+    mejor_estudiante = Calificacion.objects.order_by('-promedio').first()
+    peor_estudiante = Calificacion.objects.order_by('promedio').first()
+    
+    # Promedio por asignatura
+    promedios_por_asignatura = Calificacion.objects.values('asignatura').annotate(
+        promedio=Avg('promedio'),
+        total=Count('id')
+    ).order_by('-promedio')
+    
+    # Estudiantes aprobados vs reprobados
+    aprobados = Calificacion.objects.filter(promedio__gte=60).count()
+    reprobados = Calificacion.objects.filter(promedio__lt=60).count()
+    
+    # Redondear valores
+    if promedio_general:
+        promedio_general = round(promedio_general, 2)
+    if promedio_mas_alto:
+        promedio_mas_alto = round(promedio_mas_alto, 2)
+    if promedio_mas_bajo:
+        promedio_mas_bajo = round(promedio_mas_bajo, 2)
+    
+    for item in promedios_por_asignatura:
+        item['promedio'] = round(item['promedio'], 2)
+    
+    context = {
+        'total_calificaciones': total_calificaciones,
+        'promedio_general': promedio_general,
+        'promedio_mas_alto': promedio_mas_alto,
+        'promedio_mas_bajo': promedio_mas_bajo,
+        'mejor_estudiante': mejor_estudiante,
+        'peor_estudiante': peor_estudiante,
+        'promedios_por_asignatura': promedios_por_asignatura,
+        'aprobados': aprobados,
+        'reprobados': reprobados,
+    }
+    return render(request, 'calificaciones/estadisticas.html', context)

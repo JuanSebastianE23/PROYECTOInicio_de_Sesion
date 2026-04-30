@@ -3,75 +3,28 @@
 {% block title %}Editar Calificación{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="bi bi-pencil"></i> Editar Calificación</h3>
+<div class="card">
+    <div class="card-header">
+        Editar Calificación
+    </div>
+
+    <div class="card-body">
+        <p class="descripcion">Modifique los datos de la calificación seleccionada.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Actualizar
+                </button>
+
+                <a href="{% url 'listar_calificaciones' %}" class="btn btn-secondary">
+                    Cancelar
+                </a>
             </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form.nombre_estudiante.label_tag }}
-                            {{ form.nombre_estudiante }}
-                            {% if form.nombre_estudiante.errors %}
-                                <div class="text-danger">{{ form.nombre_estudiante.errors }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.identificacion.label_tag }}
-                            {{ form.identificacion }}
-                            {% if form.identificacion.errors %}
-                                <div class="text-danger">{{ form.identificacion.errors }}</div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        {{ form.asignatura.label_tag }}
-                        {{ form.asignatura }}
-                        {% if form.asignatura.errors %}
-                            <div class="text-danger">{{ form.asignatura.errors }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            {{ form.nota1.label_tag }}
-                            {{ form.nota1 }}
-                            {% if form.nota1.errors %}
-                                <div class="text-danger">{{ form.nota1.errors }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            {{ form.nota2.label_tag }}
-                            {{ form.nota2 }}
-                            {% if form.nota2.errors %}
-                                <div class="text-danger">{{ form.nota2.errors }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            {{ form.nota3.label_tag }}
-                            {{ form.nota3 }}
-                            {% if form.nota3.errors %}
-                                <div class="text-danger">{{ form.nota3.errors }}</div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> El promedio se recalculará automáticamente al guardar.
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save"></i> Actualizar Calificación
-                        </button>
-                        <a href="{% url 'listar_calificaciones' %}" class="btn btn-secondary">
-                            <i class="bi bi-x-circle"></i> Cancelar
-                        </a>
-                    </div>
-                </form>
-            </div>
-        </div>
+        </form>
     </div>
 </div>
 {% endblock %}

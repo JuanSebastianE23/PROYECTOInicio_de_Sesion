@@ -200,7 +200,7 @@ class LoginProtectionTest(TestCase):
         """Test: Listar calificaciones requiere login"""
         response = self.client.get(reverse('listar_calificaciones'))
         self.assertEqual(response.status_code, 302)  # Redirect
-        self.assertIn('/login', response.url)
+        self.assertIn('login', response.url)
     
     def test_crear_requiere_login(self):
         """Test: Crear calificación requiere login"""

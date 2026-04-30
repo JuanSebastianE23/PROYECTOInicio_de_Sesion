@@ -287,14 +287,14 @@ def listar_calificaciones(request):
     
     # Obtener todas las calificaciones
     calificaciones = Calificacion.objects.all()
-    promedio = Calificacion.objects.aggregate(Avg('promedio'))['promedio__avg']
+    promedio_general = Calificacion.objects.aggregate(Avg('promedio'))['promedio__avg']
 
-    if promedio:
-        promedio = round(promedio, 2)
+    if promedio_general is not None:
+        promedio_general = round(promedio_general, 2)
 
     return render(request, 'calificaciones/listar.html', {
         'calificaciones': calificaciones,
-        'promedio': promedio
+        'promedio_general': promedio_general
     })
 
 
@@ -327,7 +327,9 @@ def eliminar_calificacion(request, pk):
         messages.success(request, 'Calificación eliminada')
         return redirect('listar_calificaciones')
 
-    return render(request, 'calificaciones/eliminar.html')
+    return render(request, 'calificaciones/eliminar.html', {
+        'calificacion': calificacion
+    })
 
 
 # PROMEDIO

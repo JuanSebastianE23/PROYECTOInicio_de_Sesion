@@ -1,4 +1,5 @@
 from django.db import models
+from decimal import Decimal
 
 class Calificacion(models.Model):
     nombre_estudiante = models.CharField(max_length=150)
@@ -10,9 +11,13 @@ class Calificacion(models.Model):
     promedio = models.DecimalField(max_digits=5, decimal_places=2, editable=False)
 
     def calcular_promedio(self):
-        return round((self.nota1 + self.nota2 + self.nota3) / 3, 2)
+        """Calcula el promedio de las tres notas usando Decimal para precisión"""
+        suma = self.nota1 + self.nota2 + self.nota3
+        promedio = suma / Decimal('3')
+        return promedio.quantize(Decimal('0.01'))
 
     def save(self, *args, **kwargs):
+        """Recalcula el promedio automáticamente antes de guardar"""
         self.promedio = self.calcular_promedio()
         super().save(*args, **kwargs)
 
